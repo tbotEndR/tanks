@@ -53,6 +53,8 @@ int main(void)
     //  player body
     Vector3 bodyPosition = { 0 };
     Quaternion bodyRotation = QuaternionIdentity();
+    Vector3 bodyDirection =   Vector3Normalize(Vector3RotateByQuaternion(zAxis, bodyRotation));
+
     Vector3 turretPosition = { 0 };
     Quaternion turretRotation = { 0 };
 
@@ -96,7 +98,7 @@ int main(void)
             quaternionAxis.y = bodyRotation.y / s;
             quaternionAxis.y = bodyRotation.y / s;
         }
-
+        
         //  raycast from mouse to collide with invisible quad to get world position
         mouseScreenPosition = GetMousePosition();
         mouseRay = GetScreenToWorldRay(GetMousePosition(), camera);
@@ -106,10 +108,14 @@ int main(void)
         if (IsKeyDown(KEY_A)) {
             yRotation = QuaternionFromAxisAngle(yAxis, TURNSPEED);
             bodyRotation = QuaternionNormalize(QuaternionMultiply(yRotation, bodyRotation));
+            bodyDirection = Vector3Normalize(Vector3RotateByQuaternion(zAxis, bodyRotation));
+
         }
         if (IsKeyDown(KEY_D)) {
             yRotation = QuaternionFromAxisAngle(yAxis, -TURNSPEED);
             bodyRotation = QuaternionNormalize(QuaternionMultiply(yRotation, bodyRotation));
+            bodyDirection = Vector3Normalize(Vector3RotateByQuaternion(zAxis, bodyRotation));
+
         }
 
         /*
@@ -136,11 +142,14 @@ int main(void)
 
             BeginMode3D(camera);
                 DrawGrid(30, 1.0f);
+
                 rlPushMatrix();
                     rlTranslatef(bodyPosition.x, bodyPosition.y, bodyPosition.z);
                     rlRotatef(quaternionAngle, quaternionAxis.x, quaternionAxis.y, quaternionAxis.z);
                     DrawCubeWires(center, 5.0f, 5.0f, 5.0f, BLUE);
                 rlPopMatrix();
+                
+                DrawLine3D(bodyPosition, Vector3Scale(bodyDirection, 10), RED);
 
             EndMode3D();
 
